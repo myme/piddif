@@ -30,7 +30,6 @@ renderHtml markup = return $ renderMarkup $ do
     where
       style :: String
       style = "h2 { font-size: 18px; }\
-              \h3 { margin-left: 2em; }\
               \.TODO { color: #6b6; background-color: #d9f9d9; padding: 2px 5px; }\
               \.DONE { color: #666; background-color: #ddd; padding: 2px 5px;  }"
 

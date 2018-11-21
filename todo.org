@@ -1,0 +1,27 @@
+#+TITLE: todo
+
+* Piddif
+
+TODO list (also used as a convenient example source).
+
+** DONE Add external styles/fonts
+CLOSED: [2018-11-21 Wed 23:14]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2018-11-21 Wed 23:14]
+:END:
+
+** TODO Integrate with browser for PDF rendering
+
+Possible options:
+
+- Chrome headless: =chrome --headless --print-to-pdf=
+- Firefox headless: =firefox [--headless] --screenshot=
+- Firefox with debugging protocol?
+
+Note: ~Chrome~ seems to be the simplest out of the box, but it's ~Chrome~...
+
+** TODO Improve option parsing
+
+*** TODO At least switch to =System.Console.GetOpt=
+
+*** TODO Allow specifying custom styles from the command line
