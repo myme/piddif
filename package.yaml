@@ -29,7 +29,6 @@ library:
   dependencies:
     - blaze-html
     - blaze-markup
-    - bytestring
     - pandoc
     - text
 
