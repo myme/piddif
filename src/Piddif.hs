@@ -25,7 +25,14 @@ renderHtml markup = return $ renderMarkup $ do
       H.link
         ! A.href "https://myme.no/css/default.css"
         ! A.rel "stylesheet"
+      H.style $ H.toHtml style
     H.body markup
+    where
+      style :: String
+      style = "h2 { font-size: 18px; }\
+              \h3 { margin-left: 2em; }\
+              \.TODO { color: #6b6; background-color: #d9f9d9; padding: 2px 5px; }\
+              \.DONE { color: #666; background-color: #ddd; padding: 2px 5px;  }"
 
 data Mode = Markdown | Org
 
