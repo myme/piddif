@@ -23,9 +23,6 @@ renderHtml markup = return $ renderMarkup $ do
         ! A.href "https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto:400,500"
         ! A.rel "stylesheet"
       H.link
-        ! A.href "https://use.fontawesome.com/releases/v5.0.2/css/all.css"
-        ! A.rel "stylesheet"
-      H.link
         ! A.href "https://myme.no/css/default.css"
         ! A.rel "stylesheet"
     H.body markup
