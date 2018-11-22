@@ -29,6 +29,7 @@ library:
   dependencies:
     - blaze-html
     - blaze-markup
+    - file-embed
     - pandoc
     - text
 

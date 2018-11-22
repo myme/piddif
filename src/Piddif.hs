@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Piddif
     ( Mode(..)
     , piddif
     ) where
 
+import           Data.FileEmbed (embedStringFile)
 import           Data.Text (pack, Text)
 import           Text.Blaze ((!))
 import qualified Text.Blaze.Html5 as H
@@ -19,7 +21,7 @@ renderHtml markup = return $ renderMarkup $ do
     H.head $ do
       H.title "Piddif rendered HTML"
       H.meta ! A.charset "utf-8"
-      H.link ! A.href "./src/default.css" ! A.rel "stylesheet"
+      H.style ! A.type_ "text/css" $ $(embedStringFile "./src/default.css")
     H.body markup
 
 data Mode = Markdown | Org
