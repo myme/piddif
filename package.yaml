@@ -43,6 +43,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - piddif
+    - process
+    - temporary
     - text
 
 tests:
