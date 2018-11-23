@@ -16,6 +16,7 @@ parseArg arg opts = case arg of
   "--md"       -> opts { _mode = Markdown }
   "--markdown" -> opts { _mode = Markdown }
   "--org"      -> opts { _mode = Org }
+  "-o"         -> opts { _open = True }
   "--open"     -> opts { _open = True }
   filename     -> if isJust $ _infile opts
     then opts { _outfile = Just filename }
@@ -36,6 +37,16 @@ defaults = Options { _infile = Nothing
                    , _open = False
                    }
 
+printUsage :: IO ()
+printUsage = putStr $ unlines ["piddif [options] [infile] [outfile]"
+                              ,""
+                              ,"\t-h, --help\tPrint usage information"
+                              ,"\t-o, --open\tOpen resulting .html file in default program"
+                              ,"\t    --md"
+                              ,"\t    --markdown\tParse input as a markdown file"
+                              ,"\t    --org\tParse input as an org-mode file"
+                              ]
+
 open :: FilePath -> IO ()
 open file = do
   putStrLn $ "Opening file: " ++ file
@@ -44,16 +55,19 @@ open file = do
 main :: IO ()
 main = do
   opts <- foldr parseArg defaults . reverse <$> getArgs
-  txt <- case _infile opts of
-    Nothing -> T.getContents
-    Just filename -> T.readFile filename
-  res <- piddif (_mode opts) txt
-  case _outfile opts of
-    Nothing -> if _open opts
-      then do
-        file <- writeSystemTempFile "piddif.html" $ unpack res
-        open file
-      else T.putStrLn res
-    Just filename -> do
-      T.writeFile filename res
-      when (_open opts) $ open filename
+  if _help opts
+    then printUsage
+    else do
+      txt <- case _infile opts of
+        Nothing -> T.getContents
+        Just filename -> T.readFile filename
+      res <- piddif (_mode opts) txt
+      case _outfile opts of
+        Nothing -> if _open opts
+          then do
+            file <- writeSystemTempFile "piddif.html" $ unpack res
+            open file
+          else T.putStrLn res
+        Just filename -> do
+          T.writeFile filename res
+          when (_open opts) $ open filename
