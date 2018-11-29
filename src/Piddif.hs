@@ -12,7 +12,7 @@ import           Text.Blaze ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import           Text.Blaze.Renderer.String (renderMarkup)
-import           Text.Pandoc (PandocIO, readMarkdown, writeHtml5, runIOorExplode, def, readOrg)
+import           Text.Pandoc (getDefaultExtensions, readerExtensions, PandocIO, readMarkdown, writeHtml5, runIOorExplode, def, readOrg)
 
 renderHtml :: H.Html -> PandocIO String
 renderHtml markup = return $ renderMarkup $ do
@@ -29,6 +29,7 @@ data Mode = Markdown | Org
 piddif :: Mode -> Text -> IO Text
 piddif mode txt = do
   let generate = case mode of
-        Markdown -> readMarkdown def
+        Markdown -> readMarkdown mdOpts
         Org -> readOrg def
   pack <$> runIOorExplode (generate txt >>= writeHtml5 def >>= renderHtml)
+  where mdOpts = def { readerExtensions = getDefaultExtensions "gfm" }
