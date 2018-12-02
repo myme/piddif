@@ -3,6 +3,7 @@
 
 module Piddif
     ( Mode(..)
+    , Options(..)
     , normalizeHeadlines
     , piddif
     ) where
@@ -15,17 +16,26 @@ import qualified Text.Blaze.Html5.Attributes as A
 import           Text.Blaze.Renderer.String (renderMarkup)
 import           Text.Pandoc (getDefaultExtensions, readerExtensions, PandocIO, readMarkdown, writeHtml5, runIOorExplode, def, readOrg)
 
-renderHtml :: H.Html -> PandocIO String
-renderHtml markup = return $ renderMarkup $ do
+data Mode = Markdown | Org
+
+data Options = Options { _mode :: Mode
+                       , _stylesheet :: Maybe String
+                       }
+
+defaultCss :: H.Html
+defaultCss = $(embedStringFile "./src/default.css")
+
+renderHtml :: Options -> H.Html -> PandocIO String
+renderHtml opts markup = return $ renderMarkup $ do
   H.docType
   H.html $ do
     H.head $ do
       H.title "Piddif rendered HTML"
       H.meta ! A.charset "utf-8"
-      H.style ! A.type_ "text/css" $ $(embedStringFile "./src/default.css")
+      case _stylesheet opts of
+        Nothing -> H.style ! A.type_ "text/css" $ defaultCss
+        Just css -> H.link ! A.rel "stylesheet" ! A.href (H.stringValue css)
     H.body markup
-
-data Mode = Markdown | Org
 
 normalizeHeadlines :: Mode -> T.Text -> T.Text
 normalizeHeadlines mode input = T.unlines . map liftHeader $ ls
@@ -41,11 +51,12 @@ normalizeHeadlines mode input = T.unlines . map liftHeader $ ls
         liftHeader line | isHeader line = T.drop (toplevel - 1) line
                         | otherwise = line
 
-piddif :: Mode -> T.Text -> IO T.Text
-piddif mode txt = do
-  let generate = case mode of
+piddif :: Options -> T.Text -> IO T.Text
+piddif opts txt = do
+  let mode = _mode opts
+      generate = case mode of
         Markdown -> readMarkdown mdOpts
         Org -> readOrg def
   let normalized = normalizeHeadlines mode txt
-  T.pack <$> runIOorExplode (pure normalized >>= generate >>= writeHtml5 def >>= renderHtml)
+  T.pack <$> runIOorExplode (pure normalized >>= generate >>= writeHtml5 def >>= renderHtml opts)
   where mdOpts = def { readerExtensions = getDefaultExtensions "gfm" }

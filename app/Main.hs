@@ -5,25 +5,25 @@ import           Control.Monad (when)
 import           Data.Text (unpack)
 import qualified Data.Text.IO as T
 import qualified Options.Applicative as Opts
-import           Piddif
+import qualified Piddif as P
 import           System.IO.Temp (writeSystemTempFile)
 import           System.Process (callProcess)
 
 data Options = Options { _infile :: Maybe String
                        , _outfile :: Maybe String
                        , _open :: Bool
-                       , _mode :: Mode
+                       , _piddif :: P.Options
                        }
 
-modeParser :: Opts.Parser Mode
+modeParser :: Opts.Parser P.Mode
 modeParser = (
-  Opts.flag' Markdown (Opts.long "md" <>
-                       Opts.help "parse input as markdown") <|>
-  Opts.flag' Markdown (Opts.long "markdown" <>
-                       Opts.help "parse input as markdown")
+  Opts.flag' P.Markdown (Opts.long "md" <>
+                         Opts.help "parse input as markdown") <|>
+  Opts.flag' P.Markdown (Opts.long "markdown" <>
+                         Opts.help "parse input as markdown")
   ) <|>
-  Opts.flag Org Org (Opts.long "org" <>
-                     Opts.help "parse input as org-mode")
+  Opts.flag P.Org P.Org (Opts.long "org" <>
+                         Opts.help "parse input as org-mode")
 
 argParser :: Opts.Parser Options
 argParser = Options
@@ -36,7 +36,12 @@ argParser = Options
   <*> Opts.switch (Opts.short 'o' <>
                    Opts.long "open" <>
                    Opts.help "open result in a browser")
-  <*> modeParser
+  <*> (P.Options <$>
+       modeParser <*>
+       optional (Opts.strOption (
+                    Opts.long "css" <>
+                    Opts.metavar "stylesheet" <>
+                    Opts.help "custom stylesheet")))
 
 open :: FilePath -> IO ()
 open file = do
@@ -49,7 +54,7 @@ main = do
   txt <- case _infile opts of
     Nothing -> T.getContents
     Just filename -> T.readFile filename
-  res <- piddif (_mode opts) txt
+  res <- P.piddif (_piddif opts) txt
   case _outfile opts of
     Nothing -> if _open opts
       then do
