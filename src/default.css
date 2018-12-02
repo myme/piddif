@@ -137,12 +137,6 @@ code {
     padding: 0 0.2em;
 }
 
-code.sourceCode, .example code {
-    background-color: inherit;
-    color: #369;
-    padding: 0;
-}
-
 p {
     line-height: 1.4em;
 }
@@ -187,11 +181,17 @@ article.collapsed + a.expand + h1 {
     border-top: none;
 }
 
-pre.sourceCode, pre.example {
+pre {
     background-color: #eafaff;
     font-size: 0.9em;
     overflow: auto;
     padding: 10px;
+}
+
+pre code {
+    background-color: inherit;
+    color: #369;
+    padding: 0;
 }
 
 .sourceCode .dt { color: #c678dd }

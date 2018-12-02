@@ -31,7 +31,17 @@ culpa qui officia deserunt mollit anim id est laborum.
 
 ** Code
 
-Inline =console.log('hello, world!');=, and block:
+Inline =console.log('hello, world!');=.
+
+Without syntax highlighting:
+
+#+BEGIN_SRC
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n-1) + fib (n-2)
+#+END_SRC
+
+With syntax highlighting:
 
 #+BEGIN_SRC haskell
 fib 0 = 0
