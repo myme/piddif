@@ -9,6 +9,8 @@ CLOSED: [2018-11-21 Wed 23:14]
 
 ** TODO Add file watching
 
+Watch an input file for changes and continuously update the output.
+
 ** TODO Integrate with browser for PDF rendering
 
 Possible options:
@@ -22,4 +24,8 @@ Note: ~Chrome~ seems to be the simplest out of the box, but it's ~Chrome~...
 ** DONE Improve option parsing
 CLOSED: [2018-12-02 Sun 23:33]
 
-** TODO Allow specifying custom styles from the command line
+** DONE Allow specifying custom styles from the command line
+CLOSED: [2018-12-03 Mon 00:02]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2018-12-03 Mon 00:02]
+:END:
