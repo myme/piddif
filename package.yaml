@@ -42,6 +42,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - optparse-applicative
     - piddif
     - process
     - temporary
