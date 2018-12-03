@@ -8,6 +8,8 @@ module Piddif
     , piddif
     ) where
 
+import           Control.Arrow ((>>>))
+import           Control.Monad ((>=>))
 import           Data.FileEmbed (embedStringFile)
 import qualified Data.Text as T
 import           Text.Blaze ((!))
@@ -52,11 +54,11 @@ normalizeHeadlines mode input = T.unlines . map liftHeader $ ls
                         | otherwise = line
 
 piddif :: Options -> T.Text -> IO T.Text
-piddif opts txt = do
-  let mode = _mode opts
-      generate = case mode of
-        Markdown -> readMarkdown mdOpts
-        Org -> readOrg def
-  let normalized = normalizeHeadlines mode txt
-  T.pack <$> runIOorExplode (pure normalized >>= generate >>= writeHtml5 def >>= renderHtml opts)
-  where mdOpts = def { readerExtensions = getDefaultExtensions "gfm" }
+piddif opts@(Options mode _) =
+  let
+      generate Markdown = readMarkdown $ def { readerExtensions = getDefaultExtensions "gfm" }
+      generate Org      = readOrg def
+      normalize = normalizeHeadlines mode
+      process = normalize >>> generate mode >=> writeHtml5 def >=> renderHtml opts
+  in
+  (T.pack <$>) . runIOorExplode . process

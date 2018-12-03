@@ -43,24 +43,21 @@ argParser = Options
                     Opts.metavar "stylesheet" <>
                     Opts.help "custom stylesheet")))
 
-open :: FilePath -> IO ()
-open file = do
+doOpen :: FilePath -> IO ()
+doOpen file = do
   putStrLn $ "Opening file: " ++ file
   callProcess "sh" ["-c", "xdg-open " ++ file]
 
 main :: IO ()
 main = do
-  opts <- Opts.execParser $ Opts.info (argParser <**> Opts.helper) Opts.fullDesc
-  txt <- case _infile opts of
-    Nothing -> T.getContents
-    Just filename -> T.readFile filename
-  res <- P.piddif (_piddif opts) txt
-  case _outfile opts of
-    Nothing -> if _open opts
-      then do
-        file <- writeSystemTempFile "piddif.html" $ unpack res
-        open file
+  Options infile outfile open piddif <-
+      Opts.execParser $ Opts.info (argParser <**> Opts.helper) Opts.fullDesc
+  txt <- maybe T.getContents T.readFile infile
+  res <- P.piddif piddif txt
+  case outfile of
+    Nothing -> if open
+      then writeSystemTempFile "piddif.html" (unpack res) >>= doOpen
       else T.putStrLn res
     Just filename -> do
       T.writeFile filename res
-      when (_open opts) $ open filename
+      when open $ doOpen filename
