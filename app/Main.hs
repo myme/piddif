@@ -1,7 +1,6 @@
 module Main where
 
 import           Control.Applicative ((<|>), (<**>), optional)
-import           Control.Monad (when)
 import           Data.Text (unpack)
 import qualified Data.Text.IO as T
 import qualified Options.Applicative as Opts
@@ -54,10 +53,11 @@ main = do
       Opts.execParser $ Opts.info (argParser <**> Opts.helper) Opts.fullDesc
   txt <- maybe T.getContents T.readFile infile
   res <- P.piddif piddif txt
-  case outfile of
-    Nothing -> if open
-      then writeSystemTempFile "piddif.html" (unpack res) >>= doOpen
-      else T.putStrLn res
-    Just filename -> do
-      T.writeFile filename res
-      when open $ doOpen filename
+  fname  <- case outfile of
+    Just filename -> T.writeFile filename res >> pure (Just filename)
+    Nothing | open -> Just <$> writeSystemTempFile "piddif.html" (unpack res)
+    Nothing -> T.putStrLn res >> pure Nothing
+
+  case fname of
+      Just f | open  -> doOpen f
+      _ -> pure ()
