@@ -49,15 +49,6 @@ fib 1 = 1
 fib n = fib (n-1) + fib (n-2)
 #+END_SRC
 
-Without highlighting:
-
-#+BEGIN_SRC
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua.
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-nisi ut aliquip ex ea commodo consequat.
-#+END_SRC
-
 ** Quote (no nesting support)
 
 #+BEGIN_QUOTE

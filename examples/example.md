@@ -29,21 +29,22 @@ culpa qui officia deserunt mollit anim id est laborum.
 
 ## Code
 
-Inline `console.log('hello, world!');`, and block:
+Inline `console.log('hello, world!');`.
 
-```haskell
+Without syntax highlighting:
+
+```
 fib 0 = 0
 fib 1 = 1
 fib n = fib (n-1) + fib (n-2)
 ```
 
-Without highlighting:
+With syntax highlighting:
 
-```
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua.
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-nisi ut aliquip ex ea commodo consequat.
+```haskell
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n-1) + fib (n-2)
 ```
 
 ## Quote (with nesting)
