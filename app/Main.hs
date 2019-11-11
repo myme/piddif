@@ -35,12 +35,20 @@ argParser = Options
   <*> Opts.switch (Opts.short 'o' <>
                    Opts.long "open" <>
                    Opts.help "open result in a browser")
-  <*> (P.Options <$>
-       modeParser <*>
-       optional (Opts.strOption (
-                    Opts.long "css" <>
-                    Opts.metavar "stylesheet" <>
-                    Opts.help "custom stylesheet")))
+  <*> (P.Options
+       <$> modeParser
+       <*> (not <$> Opts.switch (
+               Opts.short 'C' <>
+               Opts.long "no-css" <>
+               Opts.help "no default styles"))
+       <*> optional (Opts.strOption (
+                        Opts.long "css" <>
+                        Opts.metavar "css" <>
+                        Opts.help "inline styles"))
+       <*> optional (Opts.strOption (
+                        Opts.long "stylesheet" <>
+                        Opts.metavar "stylesheet" <>
+                        Opts.help "custom stylesheet")))
 
 openFile :: FilePath -> IO ()
 openFile file = do

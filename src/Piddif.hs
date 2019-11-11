@@ -9,7 +9,7 @@ module Piddif
     ) where
 
 import           Control.Arrow ((>>>))
-import           Control.Monad ((>=>))
+import           Control.Monad ((>=>), when)
 import           Data.FileEmbed (embedStringFile)
 import qualified Data.Text as T
 import           Text.Blaze ((!))
@@ -21,6 +21,8 @@ import           Text.Pandoc (getDefaultExtensions, readerExtensions, PandocIO, 
 data Mode = Markdown | Org
 
 data Options = Options { _mode :: Mode
+                       , _defaultstyles :: Bool
+                       , _css :: Maybe String
                        , _stylesheet :: Maybe String
                        }
 
@@ -34,10 +36,12 @@ renderHtml opts markup = return $ renderMarkup $ do
     H.head $ do
       H.title "Piddif rendered HTML"
       H.meta ! A.charset "utf-8"
-      case _stylesheet opts of
-        Nothing -> H.style ! A.type_ "text/css" $ defaultCss
-        Just css -> H.link ! A.rel "stylesheet" ! A.href (H.stringValue css)
+      when (_defaultstyles opts) (renderCss defaultCss)
+      maybe (pure mempty) (renderCss . H.toHtml) (_css opts)
+      maybe (pure mempty) renderCssLink (_stylesheet opts)
     H.body markup
+  where renderCss css = H.style ! A.type_ "text/css" $ css
+        renderCssLink url = H.link ! A.rel "stylesheet" ! A.href (H.stringValue url)
 
 normalizeHeadlines :: Mode -> T.Text -> T.Text
 normalizeHeadlines mode input = T.unlines . map liftHeader $ ls
@@ -54,8 +58,9 @@ normalizeHeadlines mode input = T.unlines . map liftHeader $ ls
                         | otherwise = line
 
 piddif :: Options -> T.Text -> IO T.Text
-piddif opts@(Options mode _) =
+piddif opts =
   let
+      mode = _mode opts
       generate Markdown = readMarkdown $ def { readerExtensions = getDefaultExtensions "gfm" }
       generate Org      = readOrg def
       normalize = normalizeHeadlines mode
