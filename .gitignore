@@ -1,4 +1,5 @@
 .stack-work/
-piddif.cabal
 *~
 examples/*.html
+dist-newstyle/
+result
