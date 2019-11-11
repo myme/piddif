@@ -18,5 +18,8 @@ haskellPackages.mkDerivation {
     temporary
     text
   ];
+  testDepends = with haskellPackages; [
+    hspec
+  ];
   license = pkgs.stdenv.lib.licenses.mit;
 }
