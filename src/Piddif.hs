@@ -61,7 +61,7 @@ piddif :: Options -> T.Text -> IO T.Text
 piddif opts =
   let
       mode = _mode opts
-      generate Markdown = readMarkdown $ def { readerExtensions = getDefaultExtensions "gfm" }
+      generate Markdown = readMarkdown $ def { readerExtensions = getDefaultExtensions "markdown" }
       generate Org      = readOrg def
       normalize = normalizeHeadlines mode
       process = normalize >>> generate mode >=> writeHtml5 def >=> renderHtml opts
