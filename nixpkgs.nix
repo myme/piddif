@@ -1,4 +1,5 @@
-import (builtins.fetchTarball {
-  url = "https://github.com/NixOS/nixpkgs/archive/19.09.tar.gz";
-  sha256 = "0mhqhq21y5vrr1f30qd2bvydv4bbbslvyzclhw0kdxmkgg3z4c92";
+import (builtins.fetchGit {
+  url = "https://github.com/NixOS/nixpkgs";
+  ref = "nixos-20.09";
+  rev = "ce4a93e13a73a53028f9e86a8a8c7f21fbc93196";
 })
