@@ -39,6 +39,7 @@ executable piddif
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , filepath
     , optparse-applicative
     , piddif
     , process

@@ -16,6 +16,7 @@ in haskellPackages.mkDerivation {
     blaze-html
     blaze-markup
     file-embed
+    filepath
     optparse-applicative
     pandoc
     process
