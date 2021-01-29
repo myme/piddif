@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./app"
+      component: "piddif:lib:piddif"
+    - path: "./src"
+      component: "piddif:exe:piddif"
