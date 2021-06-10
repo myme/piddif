@@ -18,6 +18,7 @@ data Options = Options { _infile :: Maybe String
                        , _defaultStyles :: Bool
                        , _inlineStyles :: Maybe String
                        , _customStylesheet :: Maybe String
+                       , _toc :: Bool
                        }
 
 modeParser :: Opts.Parser (Maybe P.Mode)
@@ -52,6 +53,8 @@ argParser = Options
                  Opts.long "stylesheet" <>
                  Opts.metavar "stylesheet" <>
                  Opts.help "custom stylesheet"))
+  <*> Opts.switch (Opts.long "toc" <>
+                   Opts.help "add table of contents")
 
 openFile :: FilePath -> IO ()
 openFile file = do
@@ -76,7 +79,7 @@ main = do
     Left err -> die err
     Right mode -> do
       txt <- maybe T.getContents T.readFile (_infile opts)
-      let pOpts = P.Options mode (_defaultStyles opts) (_inlineStyles opts) (_customStylesheet opts)
+      let pOpts = P.Options mode (_defaultStyles opts) (_inlineStyles opts) (_customStylesheet opts) (_toc opts)
       res <- P.piddif pOpts txt
 
       fname <- case _outfile opts of

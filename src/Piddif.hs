@@ -16,7 +16,21 @@ import           Text.Blaze ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import           Text.Blaze.Renderer.String (renderMarkup)
-import           Text.Pandoc (getDefaultExtensions, readerExtensions, PandocIO, readMarkdown, writeHtml5, runIOorExplode, def, readOrg)
+import qualified Text.Pandoc as Pandoc
+import           Text.Pandoc
+  ( getDefaultExtensions
+  , readerExtensions
+  , pandocExtensions
+  , PandocIO
+  , readMarkdown
+  , writeHtml5
+  , runIOorExplode
+  , def
+  , readOrg
+  , writerTableOfContents
+  , writerTOCDepth
+  , writerTemplate
+  )
 
 data Mode = Markdown | Org
 
@@ -24,6 +38,7 @@ data Options = Options { _mode :: Mode
                        , _defaultstyles :: Bool
                        , _css :: Maybe String
                        , _stylesheet :: Maybe String
+                       , _toc :: Bool
                        }
 
 defaultCss :: H.Html
@@ -60,10 +75,19 @@ normalizeHeadlines mode input = T.unlines . map liftHeader $ ls
 piddif :: Options -> T.Text -> IO T.Text
 piddif opts =
   let
-      mode = _mode opts
-      generate Markdown = readMarkdown $ def { readerExtensions = getDefaultExtensions "markdown" }
-      generate Org      = readOrg def
-      normalize = normalizeHeadlines mode
-      process = normalize >>> generate mode >=> writeHtml5 def >=> renderHtml opts
+    mode = _mode opts
+    generate Markdown = readMarkdown def { readerExtensions = getDefaultExtensions "markdown" }
+    generate Org      = readOrg def { readerExtensions = pandocExtensions }
+    normalize = normalizeHeadlines mode
+    tocTemplate = if _toc opts
+      then Just $ either error id $ either (error . show) id $
+        Pandoc.runPure $ Pandoc.runWithDefaultPartials $
+        Pandoc.compileTemplate "" "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
+      else Nothing
+    writerOptions = def { writerTableOfContents = _toc opts
+                        , writerTOCDepth = 2
+                        , writerTemplate = tocTemplate
+                        }
+    process = normalize >>> generate mode >=> writeHtml5 writerOptions >=> renderHtml opts
   in
-  (T.pack <$>) . runIOorExplode . process
+    (T.pack <$>) . runIOorExplode . process

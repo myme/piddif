@@ -13,7 +13,7 @@ culpa qui officia deserunt mollit anim id est laborum.
 
 ** Inline formatting
 
-*Strong* /emphasis/ on +striking+ out.
+*Strong* /emphasis/ on +striking+ out. https://example.com
 
 ** Numbered list
 
