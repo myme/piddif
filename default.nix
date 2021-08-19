@@ -26,5 +26,5 @@ in haskellPackages.mkDerivation {
   testDepends = with haskellPackages; [
     hspec
   ];
-  license = pkgs.stdenv.lib.licenses.mit;
+  license = pkgs.lib.licenses.mit;
 }
