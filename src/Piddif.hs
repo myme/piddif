@@ -11,6 +11,7 @@ module Piddif
 import           Control.Arrow ((>>>))
 import           Control.Monad ((>=>), when)
 import           Data.FileEmbed (embedStringFile)
+import           Data.Maybe (fromMaybe, isJust)
 import qualified Data.Text as T
 import           Text.Blaze ((!))
 import qualified Text.Blaze.Html5 as H
@@ -38,7 +39,7 @@ data Options = Options { _mode :: Mode
                        , _defaultstyles :: Bool
                        , _css :: Maybe String
                        , _stylesheet :: Maybe String
-                       , _toc :: Bool
+                       , _toc :: Maybe Int
                        }
 
 defaultCss :: H.Html
@@ -79,13 +80,14 @@ piddif opts =
     generate Markdown = readMarkdown def { readerExtensions = getDefaultExtensions "markdown" }
     generate Org      = readOrg def { readerExtensions = pandocExtensions }
     normalize = normalizeHeadlines mode
-    tocTemplate = if _toc opts
+    withToc = isJust $ _toc opts
+    tocTemplate = if withToc
       then Just $ either error id $ either (error . show) id $
         Pandoc.runPure $ Pandoc.runWithDefaultPartials $
         Pandoc.compileTemplate "" "<div class=\"toc\"><h1>Contents</h1>\n$toc$\n</div>\n$body$"
       else Nothing
-    writerOptions = def { writerTableOfContents = _toc opts
-                        , writerTOCDepth = 2
+    writerOptions = def { writerTableOfContents = withToc
+                        , writerTOCDepth = fromMaybe 0 $ _toc opts
                         , writerTemplate = tocTemplate
                         }
     process = normalize >>> generate mode >=> writeHtml5 writerOptions >=> renderHtml opts

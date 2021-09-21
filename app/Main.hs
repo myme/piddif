@@ -18,7 +18,7 @@ data Options = Options { _infile :: Maybe String
                        , _defaultStyles :: Bool
                        , _inlineStyles :: Maybe String
                        , _customStylesheet :: Maybe String
-                       , _toc :: Bool
+                       , _toc :: Maybe Int
                        }
 
 modeParser :: Opts.Parser (Maybe P.Mode)
@@ -53,8 +53,9 @@ argParser = Options
                  Opts.long "stylesheet" <>
                  Opts.metavar "stylesheet" <>
                  Opts.help "custom stylesheet"))
-  <*> Opts.switch (Opts.long "toc" <>
-                   Opts.help "add table of contents")
+  <*> optional (Opts.option Opts.auto (
+                   Opts.long "toc" <>
+                   Opts.help "add table of contents"))
 
 openFile :: FilePath -> IO ()
 openFile file = do
