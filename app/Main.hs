@@ -1,6 +1,6 @@
 module Main where
 
-import           Control.Applicative ((<|>), (<**>), optional)
+import           Control.Applicative (Alternative, (<|>), (<**>), empty, optional)
 import           Data.Maybe (fromMaybe)
 import           Data.Text (unpack)
 import qualified Data.Text.IO as T
@@ -73,13 +73,16 @@ guessMode opts =
       ".org" -> Right P.Org
       _      -> Left $ "Unknown extension: " <> ext
 
+emptyIf :: Alternative f => (a -> Bool) -> a -> f a
+emptyIf f x = if f x then empty else pure x
+
 main :: IO ()
 main = do
   opts <- Opts.execParser $ Opts.info (argParser <**> Opts.helper) Opts.fullDesc
   case guessMode opts of
     Left err -> die err
     Right mode -> do
-      txt <- maybe T.getContents T.readFile (_infile opts)
+      txt <- maybe T.getContents T.readFile (_infile opts >>= emptyIf ("-" ==))
       let pOpts = P.Options mode (_defaultStyles opts) (_inlineStyles opts) (_customStylesheet opts) (_toc opts)
       res <- P.piddif pOpts txt
 
