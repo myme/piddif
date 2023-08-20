@@ -1,4 +1,4 @@
-name: "Build GitHub Pages"
+name: "Build Nix"
 
 on:
   push:
