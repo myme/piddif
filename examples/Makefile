@@ -6,7 +6,7 @@ clean:
 	-@rm -f *.html
 
 markdown.html: example.md
-	stack build --exec "piddif --md $^" > $@
+	cabal run piddif -- --md $^ > $@
 
 org.html: example.org
-	stack build --exec "piddif $^" > $@
+	cabal run piddif -- $^ > $@
