@@ -13,8 +13,34 @@
       body {
         display: flex;
         justify-content: center;
+        margin: 0;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 1em;
         font-family: "Roboto", sans-serif;
         font-weight: 400;
+        width: 100%;
+        min-width: 300px;
+        max-width: 800px;
+        box-sizing: border-box;
+      }
+      form {
+        box-sizing: border-box;
+        flex: 1;
+      }
+      div.row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1em;
+      }
+      textarea {
+        border-style: solid;
+        padding: 1em;
+        height: 500px;
+      }
+      button {
+        max-width: 10em;
+        align-self: center;
       }
       button,
       select {
@@ -27,40 +53,31 @@
         color: white;
         padding: 1em;
       }
-      div {
-        padding: 10px;
-      }
-      textarea {
-        border-style: solid;
-        padding: 1em;
-        width: 800px;
-        height: 500px;
-      }
     </style>
   </head>
   <body>
     <form method="post">
-      <div>
+      <div class="row">
         <textarea
           name="input"
           placeholder="Type or paste some markdown…"
         ></textarea>
       </div>
-      <div>
+      <div class="row">
         Format:
         <select name="mode">
           <option value="markdown">Markdown</option>
           <option value="org">Org-mode</option>
         </select>
       </div>
-      <div>
+      <div class="row">
         Colorscheme:
         <select name="scheme">
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </select>
       </div>
-      <div>
+      <div class="row">
         <button type="submit">Generate!</button>
       </div>
     </form>
