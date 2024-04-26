@@ -57,6 +57,7 @@ executable piddif-server
     , bytestring
     , file-embed
     , http-types
+    , optparse-applicative
     , piddif
     , text
     , wai

@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
@@ -12,11 +13,13 @@ import qualified Network.HTTP.Types as H
 import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Network.Wai.Parse as Wai
+import Options.Applicative ((<**>))
+import qualified Options.Applicative as Opts
 import qualified Piddif as P
 import qualified System.IO as IO
 
-runServer :: Warp.Port -> IO ()
-runServer port = Warp.run port $ \request respond -> do
+runServer :: Options -> IO ()
+runServer opts = Warp.run opts.port $ \request respond -> do
   let method = Wai.requestMethod request
   case method of
     "GET" -> showForm request respond
@@ -52,9 +55,24 @@ generateDoc request respond = do
         let responseBody = BS.fromStrict $ T.encodeUtf8 result
         respond $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] responseBody
 
+data Options = Options
+  { host :: String,
+    port :: Int
+  }
+
 main :: IO ()
 main = do
-  let port = 8080
+  opts <- Opts.execParser $ Opts.info (argParser <**> Opts.helper) Opts.fullDesc
   IO.hSetBuffering IO.stdout IO.LineBuffering
-  putStrLn $ "Starting server on http://localhost:" <> show port
-  runServer port
+  putStrLn $ "Starting server on http://" <> opts.host <> ":" <> show opts.port
+  runServer opts
+  where
+    argParser =
+      Options
+        <$> Opts.strOption
+          ( Opts.long "host" <> Opts.metavar "host" <> Opts.help "host to bind to" <> Opts.value "localhost"
+          )
+        <*> Opts.option
+          Opts.auto
+          ( Opts.long "port" <> Opts.metavar "port" <> Opts.help "port to listen on" <> Opts.value 8000
+          )
