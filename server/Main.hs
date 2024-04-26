@@ -13,6 +13,7 @@ import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
 import qualified Network.Wai.Parse as Wai
 import qualified Piddif as P
+import qualified System.IO as IO
 
 runServer :: Warp.Port -> IO ()
 runServer port = Warp.run port $ \request respond -> do
@@ -54,5 +55,6 @@ generateDoc request respond = do
 main :: IO ()
 main = do
   let port = 8080
+  IO.hSetBuffering IO.stdout IO.LineBuffering
   putStrLn $ "Starting server on http://localhost:" <> show port
   runServer port
