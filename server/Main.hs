@@ -22,15 +22,19 @@ runServer :: Options -> IO ()
 runServer opts = Warp.run opts.port $ \request respond -> do
   let method = Wai.requestMethod request
   case method of
-    "GET" -> showForm request respond
+    "GET" -> showForm opts request respond
     "POST" -> generateDoc request respond
     _ -> respond $ Wai.responseLBS H.status405 [] "Method Not Allowed"
 
-showForm :: Wai.Application
-showForm _ respond = do
-  respond $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] formHTML
+showForm :: Options -> Wai.Application
+showForm opts _ respond =
+  if opts.embed
+    then
+      respond $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] formEmbed
+    else
+      respond $ Wai.responseFile H.status200 [] "./server/form.html" Nothing
   where
-    formHTML = BL8.fromStrict $(embedFile "./server/form.html")
+    formEmbed = BL8.fromStrict $(embedFile "./server/form.html")
 
 generateDoc :: Wai.Application
 generateDoc request respond = do
@@ -57,7 +61,8 @@ generateDoc request respond = do
 
 data Options = Options
   { host :: String,
-    port :: Int
+    port :: Int,
+    embed :: Bool
   }
 
 main :: IO ()
@@ -76,3 +81,8 @@ main = do
           Opts.auto
           ( Opts.long "port" <> Opts.metavar "port" <> Opts.help "port to listen on" <> Opts.value 8000
           )
+        <*> ( not
+                <$> Opts.switch
+                  ( Opts.long "no-embed" <> Opts.help "don't embed the form in the executable"
+                  )
+            )

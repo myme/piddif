@@ -10,6 +10,10 @@
         system = "x86_64-linux";
         overlays = [ self.overlay ];
       };
+      dev-server = pkgs.writeShellScriptBin "dev-server" ''
+        set -euo pipefail
+        ghcid -c 'cabal repl piddif-server' -r --setup ':set args --no-embed'
+      '';
     in {
       overlay = (final: prev: {
         piddif = pkgs.haskell.lib.compose.justStaticExecutables
@@ -37,9 +41,12 @@
       devShell.${system} = pkgs.haskellPackages.shellFor {
         withHoogle = true;
         packages = _: [ pkgs.haskellPackages.piddif ];
-        buildInputs =
-          (with pkgs; [ cabal-install haskell-language-server hlint ])
-          ++ (with pkgs.haskellPackages; [ ghcid ormolu ]);
+        buildInputs = ([
+          pkgs.cabal-install
+          pkgs.haskell-language-server
+          pkgs.hlint
+          dev-server
+        ]) ++ (with pkgs.haskellPackages; [ ghcid ormolu ]);
       };
     };
 }

@@ -43,7 +43,7 @@ I say "lean" because `pandoc` is _huuuge_.
 Use `ghcid` to start the server in a reloading mode:
 
 ```
-ghcid -c 'cabal repl piddif-server' -r
+nix develop -c dev-server
 ```
 
 Note: This doesn't reload on changes to the static assets like `form.html`.
