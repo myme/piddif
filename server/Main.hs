@@ -31,15 +31,16 @@ showForm _ respond = do
 generateDoc :: Wai.Application
 generateDoc request respond = do
   (params, _) <- Wai.parseRequestBodyEx Wai.defaultParseRequestBodyOptions Wai.lbsBackEnd request
+  let mode = maybe (Right P.Markdown) (P.modeParser . B8.unpack) $ lookup "mode" params
   let scheme = maybe (Right P.Light) (P.schemeParser . B8.unpack) $ lookup "scheme" params
-  case scheme of
+  case (,) <$> mode <*> scheme of
     Left err -> respond $ Wai.responseLBS H.status400 [] (BL8.pack err)
-    Right scheme' -> case lookup "input" params of
+    Right (mode', scheme') -> case lookup "input" params of
       Nothing -> respond $ Wai.responseLBS H.status400 [] "Bad Request: missing input"
       Just input -> do
         let opts =
               P.Options
-                { P._mode = P.Org,
+                { P._mode = mode',
                   P._defaultstyles = True,
                   P._css = Nothing,
                   P._stylesheet = Nothing,

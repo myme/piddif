@@ -9,6 +9,7 @@ module Piddif
     Scheme (..),
     normalizeHeadlines,
     piddif,
+    modeParser,
     schemeParser,
   )
 where
@@ -41,6 +42,12 @@ import qualified Text.Pandoc as Pandoc
 data Mode = Markdown | Org
 
 data Scheme = Light | Dark
+
+modeParser :: String -> Either String Mode
+modeParser = \case
+  "markdown" -> Right Markdown
+  "org" -> Right Org
+  format -> Left $ "Invalid format: must be markdown or org, got " <> format
 
 schemeParser :: String -> Either String Scheme
 schemeParser = \case
