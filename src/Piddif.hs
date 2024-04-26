@@ -1,9 +1,11 @@
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Piddif
   ( Mode (..),
     Options (..),
+    Scheme (..),
     normalizeHeadlines,
     piddif,
   )
@@ -14,7 +16,7 @@ import Control.Monad (when, (>=>))
 import Data.FileEmbed (embedStringFile)
 import Data.Maybe (fromMaybe, isJust)
 import qualified Data.Text as T
-import Text.Blaze ((!))
+import Text.Blaze (dataAttribute, (!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Renderer.String (renderMarkup)
@@ -36,12 +38,15 @@ import qualified Text.Pandoc as Pandoc
 
 data Mode = Markdown | Org
 
+data Scheme = Light | Dark
+
 data Options = Options
   { _mode :: Mode,
     _defaultstyles :: Bool,
     _css :: Maybe String,
     _stylesheet :: Maybe String,
-    _toc :: Maybe Int
+    _toc :: Maybe Int,
+    _scheme :: Maybe Scheme
   }
 
 defaultCss :: H.Html
@@ -50,7 +55,7 @@ defaultCss = $(embedStringFile "./src/default.css")
 renderHtml :: Options -> H.Html -> PandocIO String
 renderHtml opts markup = return $ renderMarkup $ do
   H.docType
-  H.html $ do
+  H.html ! scheme opts._scheme $ do
     H.head $ do
       H.title "Piddif rendered HTML"
       H.meta ! A.charset "utf-8"
@@ -59,8 +64,11 @@ renderHtml opts markup = return $ renderMarkup $ do
       maybe (pure mempty) renderCssLink (_stylesheet opts)
     H.body markup
   where
-    renderCss css = H.style ! A.type_ "text/css" $ css
+    renderCss = H.style ! A.type_ "text/css"
     renderCssLink url = H.link ! A.rel "stylesheet" ! A.href (H.stringValue url)
+    scheme s = dataAttribute "scheme" $ case s of
+      Just Dark -> "dark"
+      _ -> "light"
 
 normalizeHeadlines :: Mode -> T.Text -> T.Text
 normalizeHeadlines mode input = T.unlines . map liftHeader $ ls

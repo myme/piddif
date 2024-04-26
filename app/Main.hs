@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Main where
@@ -21,7 +22,8 @@ data Options = Options
     _defaultStyles :: Bool,
     _inlineStyles :: Maybe String,
     _customStylesheet :: Maybe String,
-    _toc :: Maybe Int
+    _toc :: Maybe Int,
+    _scheme :: Maybe P.Scheme
   }
 
 modeParser :: Opts.Parser (Maybe P.Mode)
@@ -38,6 +40,19 @@ modeParser =
         ( Opts.long "org"
             <> Opts.help "parse input as org-mode"
         )
+
+schemeParser :: Opts.Parser (Maybe P.Scheme)
+schemeParser =
+  optional $
+    Opts.option
+      ( Opts.eitherReader $ \case
+          "light" -> Right P.Light
+          "dark" -> Right P.Dark
+          _ -> Left "Invalid scheme: must be light or dark"
+      )
+      ( Opts.long "scheme"
+          <> Opts.help "color scheme (light/dark)"
+      )
 
 argParser :: Opts.Parser Options
 argParser =
@@ -88,6 +103,7 @@ argParser =
               <> Opts.help "add table of contents"
           )
       )
+    <*> schemeParser
 
 openFile :: FilePath -> IO ()
 openFile file = do
@@ -117,7 +133,7 @@ main = do
     Left err -> die err
     Right mode -> do
       txt <- maybe T.getContents T.readFile (_infile opts >>= emptyIf ("-" ==))
-      let pOpts = P.Options mode opts._defaultStyles opts._inlineStyles opts._customStylesheet opts._toc
+      let pOpts = P.Options mode opts._defaultStyles opts._inlineStyles opts._customStylesheet opts._toc opts._scheme
       res <- P.piddif pOpts txt
 
       fname <- case _outfile opts of
