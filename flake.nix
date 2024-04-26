@@ -21,7 +21,18 @@
         };
       });
 
-      defaultPackage.${system} = pkgs.piddif;
+      packages.${system} = {
+        default = pkgs.piddif;
+        image = pkgs.dockerTools.buildLayeredImage {
+          name = "piddif";
+          tag = "latest";
+          contents = pkgs.piddif;
+          config = {
+            Cmd = [ "piddif-server" ];
+            ExposedPorts = { "8000/tcp" = { }; };
+          };
+        };
+      };
 
       devShell.${system} = pkgs.haskellPackages.shellFor {
         withHoogle = true;
