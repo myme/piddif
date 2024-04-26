@@ -23,7 +23,7 @@ jobs:
           name: myme
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Build Docker image
-        run: nix build -o ${{ env.tarball_name }}
+        run: nix build .#image -o ${{ env.tarball_name }}
       - name: Archive Docker Image
         uses: actions/upload-artifact@v3
         with:
