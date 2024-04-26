@@ -1,0 +1,40 @@
+<!doctype html>
+<html class="no-js" lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Piddif</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+      body {
+        display: flex;
+        justify-content: center;
+      }
+      div {
+        padding: 10px;
+      }
+      textarea {
+        width: 800px;
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <form method="post">
+      <div>
+        <textarea name="input"></textarea>
+      </div>
+      <div>
+        Colorscheme:
+        <select name="scheme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+      <div>
+        <button type="submit">Generate!</button>
+      </div>
+    </form>
+  </body>
+</html>

@@ -47,6 +47,22 @@ executable piddif
     , text
   default-language: Haskell2010
 
+executable piddif-server
+  main-is: Main.hs
+  hs-source-dirs:
+      server
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , http-types
+    , piddif
+    , text
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010
+
 test-suite piddif-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs

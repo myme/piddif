@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Main where
@@ -45,11 +44,7 @@ schemeParser :: Opts.Parser (Maybe P.Scheme)
 schemeParser =
   optional $
     Opts.option
-      ( Opts.eitherReader $ \case
-          "light" -> Right P.Light
-          "dark" -> Right P.Dark
-          _ -> Left "Invalid scheme: must be light or dark"
-      )
+      (Opts.eitherReader P.schemeParser)
       ( Opts.long "scheme"
           <> Opts.help "color scheme (light/dark)"
       )

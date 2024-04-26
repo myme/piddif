@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -8,6 +9,7 @@ module Piddif
     Scheme (..),
     normalizeHeadlines,
     piddif,
+    schemeParser,
   )
 where
 
@@ -39,6 +41,12 @@ import qualified Text.Pandoc as Pandoc
 data Mode = Markdown | Org
 
 data Scheme = Light | Dark
+
+schemeParser :: String -> Either String Scheme
+schemeParser = \case
+  "light" -> Right Light
+  "dark" -> Right Dark
+  scheme -> Left $ "Invalid scheme: must be light or dark, got " <> scheme
 
 data Options = Options
   { _mode :: Mode,
