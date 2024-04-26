@@ -7,14 +7,32 @@
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type="text/css">
+      * {
+        border-radius: 5px;
+      }
       body {
         display: flex;
         justify-content: center;
+        font-family: "Roboto", sans-serif;
+        font-weight: 400;
+      }
+      button,
+      select {
+        padding: 0.5em;
+        border: none;
+        cursor: pointer;
+      }
+      button[type="submit"] {
+        background-color: #007bff;
+        color: white;
+        padding: 1em;
       }
       div {
         padding: 10px;
       }
       textarea {
+        border-style: solid;
+        padding: 1em;
         width: 800px;
         height: 500px;
       }
@@ -23,7 +41,10 @@
   <body>
     <form method="post">
       <div>
-        <textarea name="input"></textarea>
+        <textarea
+          name="input"
+          placeholder="Type or paste some markdown…"
+        ></textarea>
       </div>
       <div>
         Format:
