@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Main where
 
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as B8
 import qualified Data.ByteString.Lazy.Char8 as BL8
+import Data.FileEmbed (embedFile)
 import qualified Data.Text.Encoding as T
 import qualified Network.HTTP.Types as H
 import qualified Network.Wai as Wai
@@ -22,7 +24,9 @@ runServer port = Warp.run port $ \request respond -> do
 
 showForm :: Wai.Application
 showForm _ respond = do
-  respond $ Wai.responseFile H.status200 [(H.hContentType, "text/html")] "./server/form.html" Nothing
+  respond $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] formHTML
+  where
+    formHTML = BL8.fromStrict $(embedFile "./server/form.html")
 
 generateDoc :: Wai.Application
 generateDoc request respond = do
