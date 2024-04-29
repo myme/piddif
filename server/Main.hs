@@ -22,74 +22,75 @@ type Handler = Wai.Request -> IO Wai.Response
 
 runServer :: Options -> IO ()
 runServer opts = Warp.run opts.port $ \request respond -> do
-  let method = Wai.requestMethod request
-  response <- case method of
-    "GET" -> showForm opts request
-    "POST" -> generateDoc request
-    _ -> pure $ Wai.responseLBS H.status405 [] "Method Not Allowed"
-  putStrLn
-    ( show (H.statusCode $ Wai.responseStatus response)
-        <> " "
-        <> B8.unpack method
-        <> " "
-        <> B8.unpack (Wai.rawPathInfo request)
-    )
-  respond response
+    let method = Wai.requestMethod request
+    response <- case method of
+        "GET" -> showForm opts request
+        "POST" -> generateDoc opts request
+        _ -> pure $ Wai.responseLBS H.status405 [] "Method Not Allowed"
+    putStrLn
+        ( show (H.statusCode $ Wai.responseStatus response)
+            <> " "
+            <> B8.unpack method
+            <> " "
+            <> B8.unpack (Wai.rawPathInfo request)
+        )
+    respond response
 
 showForm :: Options -> Handler
 showForm opts _ = do
-  if opts.embed
-    then pure $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] formEmbed
-    else pure $ Wai.responseFile H.status200 [] "./server/form.html" Nothing
+    if opts.embed
+        then pure $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] formEmbed
+        else pure $ Wai.responseFile H.status200 [] "./server/form.html" Nothing
   where
     formEmbed = BL8.fromStrict $(embedFile "./server/form.html")
 
-generateDoc :: Handler
-generateDoc request = do
-  (params, _) <- Wai.parseRequestBodyEx Wai.defaultParseRequestBodyOptions Wai.lbsBackEnd request
-  let mode = maybe (Right P.Markdown) (P.modeParser . B8.unpack) $ lookup "mode" params
-  let scheme = maybe (Right P.Light) (P.schemeParser . B8.unpack) $ lookup "scheme" params
-  let input = maybe (Left "Bad Request: missing input") Right $ lookup "input" params
-  case (,,) <$> mode <*> scheme <*> input of
-    Left err -> pure $ Wai.responseLBS H.status400 [] (BL8.pack err)
-    Right (mode', scheme', input') -> do
-      let opts =
-            P.Options
-              { P._mode = mode',
-                P._defaultstyles = True,
-                P._css = Nothing,
-                P._stylesheet = Nothing,
-                P._toc = Nothing,
-                P._scheme = Just scheme'
-              }
-      result <- P.piddif opts (T.decodeUtf8 input')
-      let responseBody = BS.fromStrict $ T.encodeUtf8 result
-      pure $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] responseBody
+generateDoc :: Options -> Handler
+generateDoc opts request = do
+    (params, _) <- Wai.parseRequestBodyEx Wai.defaultParseRequestBodyOptions Wai.lbsBackEnd request
+    let mode = maybe (Right P.Markdown) (P.modeParser . B8.unpack) $ lookup "mode" params
+    let scheme = maybe (Right P.Light) (P.schemeParser . B8.unpack) $ lookup "scheme" params
+    let input = maybe (Left "Bad Request: missing input") Right $ lookup "input" params
+    case (,,) <$> mode <*> scheme <*> input of
+        Left err -> pure $ Wai.responseLBS H.status400 [] (BL8.pack err)
+        Right (mode', scheme', input') -> do
+            let pOpts =
+                    P.Options
+                        { P._mode = mode'
+                        , P._defaultstyles = True
+                        , P._css = Nothing
+                        , P._stylesheet = Nothing
+                        , P._toc = Nothing
+                        , P._scheme = Just scheme'
+                        , P._embed = opts.embed
+                        }
+            result <- P.piddif pOpts (T.decodeUtf8 input')
+            let responseBody = BS.fromStrict $ T.encodeUtf8 result
+            pure $ Wai.responseLBS H.status200 [(H.hContentType, "text/html")] responseBody
 
 data Options = Options
-  { host :: String,
-    port :: Int,
-    embed :: Bool
-  }
+    { host :: String
+    , port :: Int
+    , embed :: Bool
+    }
 
 main :: IO ()
 main = do
-  opts <- Opts.execParser $ Opts.info (argParser <**> Opts.helper) Opts.fullDesc
-  IO.hSetBuffering IO.stdout IO.LineBuffering
-  putStrLn $ "Starting server on http://" <> opts.host <> ":" <> show opts.port
-  runServer opts
+    opts <- Opts.execParser $ Opts.info (argParser <**> Opts.helper) Opts.fullDesc
+    IO.hSetBuffering IO.stdout IO.LineBuffering
+    putStrLn $ "Starting server on http://" <> opts.host <> ":" <> show opts.port
+    runServer opts
   where
     argParser =
-      Options
-        <$> Opts.strOption
-          ( Opts.long "host" <> Opts.metavar "host" <> Opts.help "host to bind to" <> Opts.value "localhost"
-          )
-        <*> Opts.option
-          Opts.auto
-          ( Opts.long "port" <> Opts.metavar "port" <> Opts.help "port to listen on" <> Opts.value 8000
-          )
-        <*> ( not
-                <$> Opts.switch
-                  ( Opts.long "no-embed" <> Opts.help "don't embed the form in the executable"
-                  )
-            )
+        Options
+            <$> Opts.strOption
+                ( Opts.long "host" <> Opts.metavar "host" <> Opts.help "host to bind to" <> Opts.value "localhost"
+                )
+            <*> Opts.option
+                Opts.auto
+                ( Opts.long "port" <> Opts.metavar "port" <> Opts.help "port to listen on" <> Opts.value 8000
+                )
+            <*> ( not
+                    <$> Opts.switch
+                        ( Opts.long "no-embed" <> Opts.help "don't embed the form in the executable"
+                        )
+                )
