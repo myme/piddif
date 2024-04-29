@@ -459,14 +459,17 @@ article .header {
     font-style: italic;
 }
 
+pre.conf, pre.sourceCode, pre.example {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
 pre.conf, pre.sourceCode, pre.example, pre > code {
     display: block;
     background-color: var(--well-bg);
+    color: var(--well-fg);
     font-size: 0.9em;
     overflow: auto;
-    padding: 0.7rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
 }
 
 p {
@@ -499,10 +502,9 @@ code a:hover {
     text-decoration: none;
 }
 
-code.sourceCode, .conf code, .example code {
-    background-color: inherit;
+code.sourceCode, .conf code, .example code, pre > code {
     color: var(--well-fg);
-    padding: 0;
+    padding: 0.7rem;
 }
 
 .sourceCode .at { color: var(--source-attribute-fg); }
