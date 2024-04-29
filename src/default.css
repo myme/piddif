@@ -459,7 +459,8 @@ article .header {
     font-style: italic;
 }
 
-pre.conf, pre.sourceCode, pre.example {
+pre.conf, pre.sourceCode, pre.example, pre > code {
+    display: block;
     background-color: var(--well-bg);
     font-size: 0.9em;
     overflow: auto;
